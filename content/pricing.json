@@ -1,0 +1,36 @@
+{
+  "disclaimer": "Prices below are starting ranges for Southern Maryland mobile service. Final quotes depend on vehicle, tire size, parts and location. Emergency after-hours may differ — call for a live quote.",
+  "currency": "USD",
+  "items": [
+    {
+      "name": "Flat / puncture repair (on-site)",
+      "from": 45,
+      "unit": "per tire",
+      "note": "Plug or patch when repairable"
+    },
+    {
+      "name": "Tire mount & balance",
+      "from": 35,
+      "unit": "per tire",
+      "note": "Customer-supplied or purchased tires"
+    },
+    {
+      "name": "Mobile service call / trip",
+      "from": 0,
+      "unit": "varies",
+      "note": "Often waived with repair — ask when you call"
+    },
+    {
+      "name": "TPMS sensor service",
+      "from": 25,
+      "unit": "per sensor",
+      "note": "Programming / install extras may apply"
+    },
+    {
+      "name": "Wheel / rim repair assessment",
+      "from": 0,
+      "unit": "free quote",
+      "note": "We inspect on-site before any work"
+    }
+  ]
+}

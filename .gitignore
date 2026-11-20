@@ -32,6 +32,11 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
+
+# raw source media used by scripts/prepare-images.mjs
+/stock
+/wp-media
 
 # vercel
 .vercel

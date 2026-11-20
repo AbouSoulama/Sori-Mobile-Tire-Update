@@ -1,0 +1,36 @@
+{
+  "radiusMiles": 40,
+  "headline": "We come to you across Southern Maryland",
+  "intro": "SORI Mobile Tire is based in Waldorf, MD. Our fully equipped van serves drivers within about 40 miles — homes, offices, parking lots and roadside.",
+  "note": "Outside this area? Call us anyway. For emergencies we often stretch farther when we can.",
+  "hub": {
+    "name": "Waldorf, MD",
+    "lat": 38.6246,
+    "lng": -76.9391
+  },
+  "cities": [
+    "Waldorf",
+    "White Plains",
+    "St. Charles",
+    "Accokeek",
+    "Fort Washington",
+    "Oxon Hill",
+    "Clinton",
+    "Camp Springs",
+    "Suitland",
+    "Upper Marlboro",
+    "Bowie",
+    "Laurel",
+    "Crofton",
+    "Annapolis (select areas)",
+    "Alexandria, VA (select areas)",
+    "District of Columbia (select areas)",
+    "Indian Head",
+    "La Plata",
+    "Bryans Road",
+    "Hughesville",
+    "Brandywine",
+    "Dunkirk",
+    "Prince Frederick (select areas)"
+  ]
+}

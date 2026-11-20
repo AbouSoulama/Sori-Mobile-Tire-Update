@@ -1,0 +1,36 @@
+{
+  "title": "Mobile tire work, on location",
+  "intro": "Replace these with photos of your van and crew when ready — drop files into public/images/team/ and update this list.",
+  "items": [
+    {
+      "src": "/images/hero-tire-service.webp",
+      "alt": "Technician preparing a tire service on location",
+      "caption": "On-site service"
+    },
+    {
+      "src": "/images/smt-tire-mounting.webp",
+      "alt": "Tire mounting equipment",
+      "caption": "Professional mounting"
+    },
+    {
+      "src": "/images/technician-impact-wrench.webp",
+      "alt": "Lug nuts tightened with an impact wrench",
+      "caption": "Precision work"
+    },
+    {
+      "src": "/images/onsite-wheel-change.webp",
+      "alt": "Wheel change beside a vehicle",
+      "caption": "We come to you"
+    },
+    {
+      "src": "/images/plug-tire.webp",
+      "alt": "Puncture plug repair",
+      "caption": "Flat tire repair"
+    },
+    {
+      "src": "/images/tire-inspection.webp",
+      "alt": "Tire inspection",
+      "caption": "Safety first"
+    }
+  ]
+}

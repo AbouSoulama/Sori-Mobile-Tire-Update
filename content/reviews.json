@@ -1,0 +1,33 @@
+{
+  "googleBusinessUrl": "",
+  "placeId": "",
+  "rating": 5,
+  "reviewCount": 4,
+  "sourceLabel": "Customer feedback",
+  "reviews": [
+    {
+      "author": "Google customer",
+      "rating": 5,
+      "text": "Professional and efficient. The wheel repair was flawless, and the convenience of on-site service saved me so much time.",
+      "service": "Wheel Repair"
+    },
+    {
+      "author": "Google customer",
+      "rating": 5,
+      "text": "Sori Mobile Tire went above and beyond. They quickly repaired my flat tire and were incredibly courteous. Will definitely use them again!",
+      "service": "Flat Tire Repair"
+    },
+    {
+      "author": "Google customer",
+      "rating": 5,
+      "text": "Fantastic experience! They helped me choose the perfect tires online and came to my location for installation. Great service!",
+      "service": "Tire Purchase Assistance"
+    },
+    {
+      "author": "Google customer",
+      "rating": 5,
+      "text": "Outstanding service! They were at my location within an hour and handled the wheel repair expertly. Couldn't be happier with the results.",
+      "service": "Wheel Repair"
+    }
+  ]
+}

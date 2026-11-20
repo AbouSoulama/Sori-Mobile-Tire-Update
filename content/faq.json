@@ -1,0 +1,37 @@
+{
+  "intro": "Quick answers before you call — or while you wait for us to arrive.",
+  "items": [
+    {
+      "q": "How fast can you get to me?",
+      "a": "For emergencies we aim to dispatch as soon as a van is free. Typical arrival in the Waldorf / Southern MD area is often under an hour, depending on traffic and distance. Call for a live ETA."
+    },
+    {
+      "q": "Where do you work?",
+      "a": "We come to your home, office, parking lot or roadside — generally within about 40 miles of Waldorf, MD. See our Service Area page for the full city list."
+    },
+    {
+      "q": "What payments do you accept?",
+      "a": "We accept major cards and common mobile payments. Ask the technician on site if you need a receipt emailed."
+    },
+    {
+      "q": "Can every flat tire be repaired?",
+      "a": "Many punctures in the tread can be plugged or patched. Sidewall damage, large cuts or tires below safe tread depth usually need replacement. We inspect first and explain your options before any work."
+    },
+    {
+      "q": "Do I need to buy tires from you?",
+      "a": "No. We can repair what you have, install tires you already purchased online, or help you choose and order the right size — then mount them on-site."
+    },
+    {
+      "q": "Are you available at night or on weekends?",
+      "a": "Yes. Regular hours are listed on the site, and our emergency line is available 24/7 for roadside tire trouble."
+    },
+    {
+      "q": "Will I get a confirmation after booking online?",
+      "a": "Yes. You receive an email confirmation, and you can also message us on WhatsApp. We then call or text to confirm the final arrival window."
+    },
+    {
+      "q": "What should I have ready when you arrive?",
+      "a": "Vehicle accessible, parking safe for our van, and your key/fob. If you know your tire size (on the sidewall), that helps — otherwise we read it on site."
+    }
+  ]
+}

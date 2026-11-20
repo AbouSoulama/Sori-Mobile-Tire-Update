@@ -1,0 +1,9 @@
+{
+  "regular": [
+    { "days": "Monday - Friday", "time": "8:00 AM - 7:00 PM" },
+    { "days": "Saturday", "time": "9:00 AM - 5:00 PM" },
+    { "days": "Sunday", "time": "10:00 AM - 4:00 PM" }
+  ],
+  "emergency": "24/7 Emergency Service Available",
+  "note": "Edit this file to change public hours without redeploying app code beyond a rebuild/restart."
+}

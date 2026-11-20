@@ -1,36 +1,50 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SORI Mobile Tire — site Next.js
 
-## Getting Started
+Nouveau site de [sori-mobile-tire.com](https://sori-mobile-tire.com) (remplace l'ancien WordPress).
+Next.js 15 (App Router) + React 19 + Tailwind CSS v4, base de données MySQL, e-mails via SMTP.
 
-First, run the development server:
+## Démarrage local
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+cp .env.example .env.local   # puis remplir les valeurs
+npm run db:setup             # crée les tables + importe les marques/modèles de véhicules
+npm run dev                  # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Le site fonctionne aussi sans base de données : les formulaires envoient alors seulement l'e-mail,
+et la liste des véhicules utilise la liste intégrée (`src/lib/vehicles.ts`).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Commande | Rôle |
+| --- | --- |
+| `npm run dev` | Serveur de développement |
+| `npm run build` / `npm start` | Build et serveur de production |
+| `npm run lint` | ESLint |
+| `npm run db:setup` | Crée les tables (`db/schema.sql`) et insère les véhicules (connexion MySQL directe) |
+| `npm run db:seed-sql` | Régénère `db/seed.sql` (véhicules) pour un import via phpMyAdmin |
+| `npm run images` | Régénère les images WebP de `public/images` (nécessite les dossiers sources locaux) |
 
-## Learn More
+## Où modifier le contenu
 
-To learn more about Next.js, take a look at the following resources:
+- Coordonnées, liens sociaux, menus : `src/lib/site.ts`
+- Contenu éditable (FAQ, zone, tarifs, avis, galerie, horaires) : dossier `content/*.json`
+- Services : `src/lib/services.ts`
+- Options des formulaires : `src/lib/form-options.ts`
+- Marques/modèles de véhicules : `src/lib/vehicles.ts` (puis `npm run db:setup` ou `npm run db:seed-sql`)
+- Pages : `src/app/*/page.tsx` — admin : `/admin`
+- Couleurs et styles : `src/app/globals.css` (bloc `@theme`)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Formulaires
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+`/api/quote`, `/api/appointment`, `/api/contact`, `/api/newsletter` :
+validation (zod), anti-spam (champ piège + limite de fréquence par IP), enregistrement MySQL,
+notification brandée (logo inclus) à `NOTIFY_EMAIL` **et** confirmation au client
+(désactivable avec `SEND_CUSTOMER_CONFIRMATION=false`).
+Les demandes sont consultables dans phpMyAdmin (tables `quote_requests`, `appointments`,
+`contact_messages`, `newsletter_subscribers`).
 
-## Deploy on Vercel
+## Déploiement
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Voir [DEPLOY.md](./DEPLOY.md) (Hostinger : MySQL, variables d'environnement, staging, bascule du domaine).
