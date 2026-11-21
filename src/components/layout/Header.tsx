@@ -24,6 +24,12 @@ const menuIcons = [Wrench, ShoppingCart, Disc3, Settings2];
 
 const serviceRoutes = ["/services", "/puncture-repair", "/wheel-repair", "/other", "/tire-purchase-assistance"];
 
+const mobileUtilityLinks = [
+  { label: "Emergency flat tire", href: "/emergency" },
+  { label: "Service area", href: "/service-area" },
+  { label: "FAQ", href: "/faq" },
+] as const;
+
 export function Header() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
@@ -85,6 +91,45 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50">
+      {/* Mobile utility strip — always visible on small screens */}
+      <div className="border-b border-white/10 bg-navy-900 text-[12px] text-white/80 md:hidden">
+        <div className="container-x flex h-10 items-center gap-3 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <Link
+            href="/emergency"
+            className="shrink-0 font-semibold whitespace-nowrap text-brand transition hover:text-white"
+          >
+            Emergency flat tire
+          </Link>
+          <span className="shrink-0 text-white/25" aria-hidden>
+            |
+          </span>
+          <Link href="/service-area" className="shrink-0 whitespace-nowrap transition hover:text-brand">
+            Service area
+          </Link>
+          <span className="shrink-0 text-white/25" aria-hidden>
+            |
+          </span>
+          <Link href="/faq" className="shrink-0 whitespace-nowrap transition hover:text-brand">
+            FAQ
+          </Link>
+          <span className="shrink-0 text-white/25" aria-hidden>
+            |
+          </span>
+          <a
+            href={site.phone.href}
+            className="flex shrink-0 items-center gap-1.5 whitespace-nowrap transition hover:text-brand"
+            aria-label="24/7 emergency line"
+          >
+            <span className="relative flex size-1.5">
+              <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400/70" />
+              <span className="relative size-1.5 rounded-full bg-emerald-400" />
+            </span>
+            <Clock className="size-3 text-brand" aria-hidden />
+            24/7 emergency line
+          </a>
+        </div>
+      </div>
+
       {/* Top bar (collapses on scroll) */}
       <div
         className={`hidden bg-navy-900 text-[13px] text-white/75 transition-[grid-template-rows] duration-300 md:grid ${
@@ -318,11 +363,38 @@ export function Header() {
       {/* Mobile menu */}
       <div
         id="mobile-menu"
-        className={`fixed inset-0 z-0 overflow-y-auto bg-navy pt-20 text-white transition-[opacity,visibility] duration-300 lg:hidden ${
+        className={`fixed inset-0 z-0 overflow-y-auto bg-navy pt-[7.5rem] text-white transition-[opacity,visibility] duration-300 lg:hidden ${
           open ? "visible opacity-100" : "invisible opacity-0"
         }`}
       >
         <nav className="container-x flex flex-col gap-1 py-6" aria-label="Mobile">
+          <div
+            className={`mb-4 grid gap-2 rounded-2xl border border-white/10 bg-white/5 p-3 ${
+              open ? "animate-rise" : ""
+            }`}
+          >
+            <p className="px-1 text-[11px] font-bold tracking-[0.2em] text-brand uppercase">Quick help</p>
+            {mobileUtilityLinks.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="rounded-xl px-3 py-2.5 text-base font-semibold text-white transition hover:bg-white/10 hover:text-brand"
+              >
+                {item.label}
+              </Link>
+            ))}
+            <a
+              href={site.phone.href}
+              className="flex items-center gap-2 rounded-xl bg-brand px-3 py-2.5 text-base font-extrabold text-navy"
+            >
+              <span className="relative flex size-2">
+                <span className="absolute inline-flex size-full animate-ping rounded-full bg-navy/40" />
+                <span className="relative size-2 rounded-full bg-navy" />
+              </span>
+              24/7 emergency line
+            </a>
+          </div>
+
           {mainNav.map((item, i) => {
             const active = isActive(item.href);
             const delay = { animationDelay: `${open ? 80 + i * 60 : 0}ms` };
