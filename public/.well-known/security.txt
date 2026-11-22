@@ -1,4 +1,4 @@
-Contact: mailto:contact@sori-mobile-tire.com
+Contact: mailto:sorimobiletire@gmail.com
 Expires: 2027-12-31T23:59:59.000Z
 Preferred-Languages: en, fr
 Canonical: https://sori-mobile-tire.com/.well-known/security.txt

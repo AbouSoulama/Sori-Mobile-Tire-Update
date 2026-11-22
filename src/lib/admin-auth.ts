@@ -14,7 +14,7 @@ function sign(payload: string) {
 }
 
 export function getAdminEmail() {
-  return (process.env.ADMIN_EMAIL || "contact@sori-mobile-tire.com").trim().toLowerCase();
+  return (process.env.ADMIN_EMAIL || "sorimobiletire@gmail.com").trim().toLowerCase();
 }
 
 export function isAdminConfigured() {
