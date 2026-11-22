@@ -14,7 +14,7 @@ export const site = {
     display: "+1 301 266 9830",
     href: "https://wa.me/13012669830?text=Hello!%20I%20have%20a%20question%20about%20your%20mobile%20tire%20services.",
   },
-  email: "sorimobiletire@gmail.com",
+  email: "contact@sori-mobile-tire.com",
   address: {
     street: "3812 Light Arms Pl",
     city: "Waldorf",

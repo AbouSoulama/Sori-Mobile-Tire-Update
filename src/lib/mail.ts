@@ -42,7 +42,7 @@ const escape = (value: unknown) =>
 export type MailRow = [label: string, value: unknown];
 
 const fromAddress = () => process.env.MAIL_FROM ?? `"${site.name}" <${site.email}>`;
-const notifyTo = () => process.env.NOTIFY_EMAIL ?? site.email;
+const notifyTo = () => process.env.NOTIFY_EMAIL ?? "sorimobiletire@gmail.com";
 
 /** Shared branded shell used for every transactional email. Logo is embedded via cid:smt-logo. */
 function emailShell({

@@ -1,0 +1,30 @@
+Impact business (fort)
+
+1)Zone de service — carte / liste des villes MD (Waldorf, DC metro…) + message clair « on se déplace jusqu’à X miles ».
+
+2)Vrais avis Google — intégrer les notes / avis (ou un widget Google) à la place des témoignages anonymes.
+
+
+3)SMS / WhatsApp après formulaire — confirmation + lien d’appel (les clients roadside répondent mieux au SMS qu’à l’e-mail).
+
+3)Page « Emergency flat tire » ultra courte, gros bouton Call, géolocalisation approximative.
+Flexibilité / ops
+
+4)Mini admin (protégé) pour lire devis / RDV / messages sans phpMyAdmin, marquer « traité », export CSV.
+
+5)CMS léger (Sanity / Markdown) pour textes, tarifs indicatifs, horaires, sans redéployer le code.
+
+6)Calendrier de créneaux (réels : bloquer les heures déjà prises).
+
+7)Multi-langues seulement si vous ciblez hors US ; pour MD/US, rester 100 % EN.
+
+
+Confiance / conversion
+
+8)Photos réelles du van / équipe (même 4–5 photos) > stock.
+
+9)Tarifs « à partir de » ou fourchettes (transparence = moins d’appels perdus).
+
+10)FAQ (temps d’arrivée, modes de paiement, ce qui est réparable ou non).
+
+11)Google Business Profile branché + schema Review quand vous aurez de vrais avis.

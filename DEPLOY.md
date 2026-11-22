@@ -25,14 +25,16 @@ l'extérieur ; l'application, elle, utilise toujours `127.0.0.1`).
 
 ## 2. Adresse e-mail du site (SMTP)
 
-Adresse publique / notifications / admin : **`sorimobiletire@gmail.com`**.
-
-Envoi SMTP (recommandé) : boîte Hostinger **`contact@sori-mobile-tire.com`** via
-`smtp.hostinger.com` (authentification). Les réponses client pointent vers Gmail (`Reply-To`).
-
-Alternative : SMTP Gmail (`smtp.gmail.com:465`) + mot de passe d’application Google.
+hPanel → **E-mails** → créer / utiliser la boîte **`contact@sori-mobile-tire.com`**.
+Elle sert à la fois :
+- d'adresse publique affichée sur le site ;
+- d'expéditeur SMTP des formulaires ;
+- de destinataire admin (chaque devis / RDV / contact / newsletter).
 
 Le client reçoit aussi un e-mail de confirmation (template brandé avec le logo).
+
+> Tant que le domaine est encore sur WordPress, vous pouvez déjà créer cette boîte : les e-mails
+> dépendent des enregistrements MX du domaine, pas du site.
 
 ## 3. Créer l'application Node.js de staging
 
@@ -56,10 +58,10 @@ Le client reçoit aussi un e-mail de confirmation (template brandé avec le logo
 | `DB_PORT` | `3306` |
 | `DB_NAME` / `DB_USER` / `DB_PASSWORD` | valeurs de l'étape 1 |
 | `SMTP_HOST` / `SMTP_PORT` | `smtp.hostinger.com` / `465` |
-| `SMTP_USER` / `SMTP_PASSWORD` | `contact@sori-mobile-tire.com` + mot de passe (auth Hostinger) |
-| `MAIL_FROM` | `SORI Mobile Tire <contact@sori-mobile-tire.com>` (doit matcher `SMTP_USER`) |
-| `NOTIFY_EMAIL` | `sorimobiletire@gmail.com` |
-| `ADMIN_EMAIL` | `sorimobiletire@gmail.com` |
+| `SMTP_USER` / `SMTP_PASSWORD` | `contact@sori-mobile-tire.com` + mot de passe |
+| `MAIL_FROM` | `SORI Mobile Tire <contact@sori-mobile-tire.com>` |
+| `NOTIFY_EMAIL` | `sorimobiletire@gmail.com` (réception des demandes) |
+| `ADMIN_EMAIL` | `sorimobiletire@gmail.com` (connexion /admin) |
 | `SEND_CUSTOMER_CONFIRMATION` | `true` (confirmation client ; mettre `false` pour désactiver) |
 | `NEXT_PUBLIC_FACEBOOK_URL` etc. | liens de vos profils (laisser vide pour masquer l'icône) |
 

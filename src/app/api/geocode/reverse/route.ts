@@ -20,7 +20,7 @@ export async function GET(request: Request) {
       {
         headers: {
           Accept: "application/json",
-          "User-Agent": "SORI-Mobile-Tire-Website/1.0 (sorimobiletire@gmail.com)",
+          "User-Agent": "SORI-Mobile-Tire-Website/1.0 (contact@sori-mobile-tire.com)",
         },
         next: { revalidate: 0 },
       },

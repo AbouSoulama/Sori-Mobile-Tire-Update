@@ -9,7 +9,7 @@ import { site } from "@/lib/site";
 export const metadata: Metadata = {
   title: "Contact Us",
   description:
-    "Contact SORI Mobile Tire at +1 227 213 7071 or sorimobiletire@gmail.com. 3812 Light Arms Pl, Waldorf, MD 20602. 24/7 emergency service available.",
+    "Contact SORI Mobile Tire at +1 227 213 7071 or contact@sori-mobile-tire.com. 3812 Light Arms Pl, Waldorf, MD 20602. 24/7 emergency service available.",
   alternates: { canonical: "/contact" },
 };
 
