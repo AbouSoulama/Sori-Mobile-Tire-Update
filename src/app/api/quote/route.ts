@@ -1,6 +1,6 @@
 import { getPool } from "@/lib/db";
 import { handleFormPost } from "@/lib/form-handler";
-import { notifyBusiness, sendCustomerConfirmation, type MailRow } from "@/lib/mail";
+import { deliverFormEmails, type MailRow } from "@/lib/mail";
 import { notifyCustomerChannels } from "@/lib/notify";
 import { quoteSchema } from "@/lib/validation";
 
@@ -48,20 +48,20 @@ export async function POST(request: Request) {
         ["Preferred contact", d.contactPreference],
         ["Message", d.message],
       ];
-      const [admin, customer] = await Promise.allSettled([
-        notifyBusiness(`New quote request from ${d.firstName} ${d.lastName}`, rows, d.email),
-        sendCustomerConfirmation({
+      const adminOk = await deliverFormEmails({
+        form: "quote",
+        adminSubject: `New quote request from ${d.firstName} ${d.lastName}`,
+        adminRows: rows,
+        replyTo: d.email,
+        customer: {
           to: d.email,
           kind: "quote",
           name: d.firstName,
           summary: rows.filter(([label]) => !["Email", "Name"].includes(label)),
-        }),
-      ]);
+        },
+      });
       await notifyCustomerChannels({ kind: "quote request", emailName: d.firstName, phone: d.phone });
-      return (
-        (admin.status === "fulfilled" && admin.value) ||
-        (customer.status === "fulfilled" && customer.value)
-      );
+      return adminOk;
     },
   });
 }

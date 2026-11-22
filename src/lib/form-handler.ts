@@ -140,5 +140,12 @@ export async function handleFormPost<S extends z.ZodType>(
       { status: 500 },
     );
   }
+
+  // Lead may be in MySQL even when SMTP to the admin failed — surface it in logs.
+  if (storedOk && !emailedOk) {
+    console.error(`[${name}] lead saved but admin email was not delivered`);
+    await captureError(new Error("admin email not delivered"), { form: name, stage: "notify-admin" });
+  }
+
   return NextResponse.json({ ok: true });
 }

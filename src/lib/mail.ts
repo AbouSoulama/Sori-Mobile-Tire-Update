@@ -2,21 +2,77 @@ import "server-only";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import nodemailer, { type Transporter } from "nodemailer";
+import { captureError } from "./errors";
 import { customerWhatsAppFollowUp } from "./notify";
 import { site } from "./site";
 
 let transporter: Transporter | null = null;
 let logoBuffer: Buffer | null = null;
 
-function getTransporter() {
-  if (!process.env.SMTP_HOST || !process.env.SMTP_USER) return null;
-  transporter ??= nodemailer.createTransport({
+const MAX_SEND_ATTEMPTS = 3;
+
+function smtpConfigured() {
+  return Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASSWORD);
+}
+
+function createTransporter() {
+  const port = Number(process.env.SMTP_PORT ?? 465);
+  return nodemailer.createTransport({
     host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT ?? 465),
-    secure: Number(process.env.SMTP_PORT ?? 465) === 465,
+    port,
+    secure: port === 465,
     auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASSWORD },
+    // Hostinger SMTP is more reliable with a small pool + rate limit than parallel sockets.
+    pool: true,
+    maxConnections: 1,
+    maxMessages: 20,
+    rateDelta: 1000,
+    rateLimit: 1,
+    connectionTimeout: 20_000,
+    greetingTimeout: 15_000,
+    socketTimeout: 30_000,
   });
+}
+
+function getTransporter() {
+  if (!smtpConfigured()) return null;
+  transporter ??= createTransporter();
   return transporter;
+}
+
+function resetTransporter() {
+  if (!transporter) return;
+  try {
+    transporter.close();
+  } catch {
+    // ignore close errors on a broken socket
+  }
+  transporter = null;
+}
+
+function isTransientMailError(error: unknown) {
+  if (!error || typeof error !== "object") return true;
+  const err = error as { code?: string; responseCode?: number; permanent?: boolean };
+  if (err.permanent === true) return false;
+  if (typeof err.responseCode === "number" && err.responseCode >= 500 && err.responseCode !== 503) {
+    return false;
+  }
+  const code = (err.code ?? "").toUpperCase();
+  return [
+    "ETIMEDOUT",
+    "ESOCKET",
+    "ECONNECTION",
+    "ECONNRESET",
+    "ECONNREFUSED",
+    "EPIPE",
+    "EENVELOPE",
+    "ETLS",
+    "EDNS",
+  ].includes(code) || code === "" || err.responseCode === 421 || err.responseCode === 450 || err.responseCode === 451 || err.responseCode === 452 || err.responseCode === 503;
+}
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 async function getLogoAttachment() {
@@ -168,23 +224,46 @@ async function sendBrandedMail({
   bodyHtml: string;
   text: string;
 }) {
-  const t = getTransporter();
-  if (!t) {
+  if (!smtpConfigured()) {
     console.warn(`[mail] SMTP not configured, skipping: ${subject}`);
     return false;
   }
+
   const logo = await getLogoAttachment();
-  await t.sendMail({
-    from: fromAddress(),
-    to,
-    replyTo,
-    subject,
-    html: emailShell({ preheader, eyebrow, title, bodyHtml }),
-    text,
-    attachments: [logo],
-  });
-  return true;
+  let lastError: unknown;
+
+  for (let attempt = 1; attempt <= MAX_SEND_ATTEMPTS; attempt++) {
+    const t = getTransporter();
+    if (!t) return false;
+
+    try {
+      await t.sendMail({
+        from: fromAddress(),
+        to,
+        replyTo,
+        subject,
+        html: emailShell({ preheader, eyebrow, title, bodyHtml }),
+        text,
+        attachments: [logo],
+      });
+      return true;
+    } catch (error) {
+      lastError = error;
+      const transient = isTransientMailError(error);
+      console.error(
+        `[mail] send failed (attempt ${attempt}/${MAX_SEND_ATTEMPTS}, transient=${transient}): ${subject}`,
+        error,
+      );
+      resetTransporter();
+      if (!transient || attempt === MAX_SEND_ATTEMPTS) break;
+      await sleep(400 * attempt);
+    }
+  }
+
+  throw lastError instanceof Error ? lastError : new Error(String(lastError ?? "mail send failed"));
 }
+
+export type CustomerMailKind = "quote" | "appointment" | "contact" | "newsletter";
 
 export async function notifyBusiness(subject: string, rows: MailRow[], replyTo?: string) {
   return sendBrandedMail({
@@ -199,7 +278,52 @@ export async function notifyBusiness(subject: string, rows: MailRow[], replyTo?:
   });
 }
 
-export type CustomerMailKind = "quote" | "appointment" | "contact" | "newsletter";
+/**
+ * Send admin notification first (critical), then customer confirmation.
+ * Parallel SMTP to Hostinger often drops one of the two messages.
+ * Returns true if the admin email was delivered.
+ */
+export async function deliverFormEmails({
+  form,
+  adminSubject,
+  adminRows,
+  replyTo,
+  customer,
+}: {
+  form: string;
+  adminSubject: string;
+  adminRows: MailRow[];
+  replyTo?: string;
+  customer?: {
+    to: string;
+    kind: CustomerMailKind;
+    name?: string | null;
+    summary?: MailRow[];
+  };
+}) {
+  let adminOk = false;
+  try {
+    adminOk = await notifyBusiness(adminSubject, adminRows, replyTo);
+  } catch (error) {
+    console.error(`[mail] admin notify failed for ${form}`, error);
+    await captureError(error, { form, stage: "notify-admin", to: notifyTo() });
+  }
+
+  if (customer) {
+    try {
+      await sendCustomerConfirmation(customer);
+    } catch (error) {
+      console.error(`[mail] customer confirmation failed for ${form}`, error);
+      await captureError(error, { form, stage: "notify-customer", to: customer.to });
+    }
+  }
+
+  if (!adminOk) {
+    console.error(`[mail] admin did not receive notification for ${form} → ${notifyTo()}`);
+  }
+
+  return adminOk;
+}
 
 const customerCopy: Record<
   CustomerMailKind,

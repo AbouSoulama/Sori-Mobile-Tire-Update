@@ -1,7 +1,7 @@
 import type { RowDataPacket } from "mysql2";
 import { getPool, isDbConfigured } from "@/lib/db";
 import { handleFormPost } from "@/lib/form-handler";
-import { notifyBusiness, sendCustomerConfirmation, type MailRow } from "@/lib/mail";
+import { deliverFormEmails, type MailRow } from "@/lib/mail";
 import { notifyCustomerChannels } from "@/lib/notify";
 import { appointmentSchema } from "@/lib/validation";
 
@@ -66,24 +66,20 @@ export async function POST(request: Request) {
         ["Preferred contact", d.contactPreference],
         ["Message to technicians", d.message],
       ];
-      const [admin, customer] = await Promise.allSettled([
-        notifyBusiness(
-          `New appointment: ${d.service} on ${d.appointmentDate} at ${d.appointmentTime}`,
-          rows,
-          d.email,
-        ),
-        sendCustomerConfirmation({
+      const adminOk = await deliverFormEmails({
+        form: "appointment",
+        adminSubject: `New appointment: ${d.service} on ${d.appointmentDate} at ${d.appointmentTime}`,
+        adminRows: rows,
+        replyTo: d.email,
+        customer: {
           to: d.email,
           kind: "appointment",
           name: d.firstName,
           summary: rows.filter(([label]) => !["Email", "Name"].includes(label)),
-        }),
-      ]);
+        },
+      });
       await notifyCustomerChannels({ kind: "appointment request", emailName: d.firstName, phone: d.phone });
-      return (
-        (admin.status === "fulfilled" && admin.value) ||
-        (customer.status === "fulfilled" && customer.value)
-      );
+      return adminOk;
     },
   });
 }

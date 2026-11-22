@@ -1,6 +1,6 @@
 import { getPool } from "@/lib/db";
 import { handleFormPost } from "@/lib/form-handler";
-import { notifyBusiness, sendCustomerConfirmation, type MailRow } from "@/lib/mail";
+import { deliverFormEmails, type MailRow } from "@/lib/mail";
 import { notifyCustomerChannels } from "@/lib/notify";
 import { contactSchema } from "@/lib/validation";
 
@@ -21,20 +21,20 @@ export async function POST(request: Request) {
         ["Subject", d.subject],
         ["Message", d.message],
       ];
-      const [admin, customer] = await Promise.allSettled([
-        notifyBusiness(`New message from ${d.name}${d.subject ? `: ${d.subject}` : ""}`, rows, d.email),
-        sendCustomerConfirmation({
+      const adminOk = await deliverFormEmails({
+        form: "contact",
+        adminSubject: `New message from ${d.name}${d.subject ? `: ${d.subject}` : ""}`,
+        adminRows: rows,
+        replyTo: d.email,
+        customer: {
           to: d.email,
           kind: "contact",
           name: d.name,
           summary: rows.filter(([label]) => !["Email", "Name"].includes(label)),
-        }),
-      ]);
+        },
+      });
       await notifyCustomerChannels({ kind: "contact message", emailName: d.name, phone: d.phone });
-      return (
-        (admin.status === "fulfilled" && admin.value) ||
-        (customer.status === "fulfilled" && customer.value)
-      );
+      return adminOk;
     },
   });
 }

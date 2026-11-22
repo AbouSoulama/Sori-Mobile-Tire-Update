@@ -1,6 +1,6 @@
 import { getPool } from "@/lib/db";
 import { handleFormPost } from "@/lib/form-handler";
-import { notifyBusiness, sendCustomerConfirmation } from "@/lib/mail";
+import { deliverFormEmails } from "@/lib/mail";
 import { newsletterSchema } from "@/lib/validation";
 
 export async function POST(request: Request) {
@@ -13,15 +13,12 @@ export async function POST(request: Request) {
         [d.email.toLowerCase()],
       );
     },
-    notify: async (d) => {
-      const [admin, customer] = await Promise.allSettled([
-        notifyBusiness("New newsletter subscriber", [["Email", d.email]]),
-        sendCustomerConfirmation({ to: d.email, kind: "newsletter" }),
-      ]);
-      return (
-        (admin.status === "fulfilled" && admin.value) ||
-        (customer.status === "fulfilled" && customer.value)
-      );
-    },
+    notify: async (d) =>
+      deliverFormEmails({
+        form: "newsletter",
+        adminSubject: "New newsletter subscriber",
+        adminRows: [["Email", d.email]],
+        customer: { to: d.email, kind: "newsletter" },
+      }),
   });
 }
