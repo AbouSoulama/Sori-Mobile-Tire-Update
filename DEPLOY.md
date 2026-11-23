@@ -26,6 +26,14 @@ l'extérieur ; l'application, elle, utilise toujours `127.0.0.1`).
 ## 2. Adresse e-mail du site (SMTP)
 
 hPanel → **E-mails** → créer / utiliser la boîte **`contact@sori-mobile-tire.com`**.
+
+Les alertes formulaires partent vers `NOTIFY_EMAIL` (par défaut cette même boîte).
+Si l’admin lit surtout Gmail sur téléphone (USA), soit :
+- configurer un **transfert** Hostinger `contact@` → Gmail, soit
+- mettre `NOTIFY_EMAIL=contact@sori-mobile-tire.com,son-gmail@gmail.com`.
+
+En cas de doute : hPanel → **Email Logs** (Delivery) après un envoi test.
+
 Elle sert à la fois :
 - d'adresse publique affichée sur le site ;
 - d'expéditeur SMTP des formulaires ;
@@ -60,8 +68,8 @@ Le client reçoit aussi un e-mail de confirmation (template brandé avec le logo
 | `SMTP_HOST` / `SMTP_PORT` | `smtp.hostinger.com` / `465` |
 | `SMTP_USER` / `SMTP_PASSWORD` | `contact@sori-mobile-tire.com` + mot de passe |
 | `MAIL_FROM` | `SORI Mobile Tire <contact@sori-mobile-tire.com>` |
-| `NOTIFY_EMAIL` | `sorimobiletire@gmail.com` (réception des demandes) |
-| `ADMIN_EMAIL` | `sorimobiletire@gmail.com` (connexion /admin) |
+| `NOTIFY_EMAIL` | `contact@sori-mobile-tire.com` (réception des demandes) |
+| `ADMIN_EMAIL` | `contact@sori-mobile-tire.com` (connexion /admin) |
 | `SEND_CUSTOMER_CONFIRMATION` | `true` (confirmation client ; mettre `false` pour désactiver) |
 | `NEXT_PUBLIC_FACEBOOK_URL` etc. | liens de vos profils (laisser vide pour masquer l'icône) |
 
@@ -72,7 +80,7 @@ relancer un build/redéploiement.
 
 - [ ] Toutes les pages s'affichent (accueil, services, about, contact, devis, rendez-vous, mentions).
 - [ ] Envoyer un devis, un rendez-vous, un message de contact et une inscription newsletter :
-      e-mail reçu sur `sorimobiletire@gmail.com` **et** e-mail de confirmation reçu par le client
+      e-mail reçu sur `contact@sori-mobile-tire.com` **et** e-mail de confirmation reçu par le client
       + ligne visible dans phpMyAdmin.
 - [ ] La liste Année / Marque / Modèle se remplit sur le formulaire de devis.
 - [ ] Sur mobile : barre « Call Now / Book Service » et bouton WhatsApp.

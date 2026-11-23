@@ -17,20 +17,17 @@ function smtpConfigured() {
 
 function createTransporter() {
   const port = Number(process.env.SMTP_PORT ?? 465);
+  // Fresh connection per message — Hostinger pooled sockets often go stale between form submits.
   return nodemailer.createTransport({
     host: process.env.SMTP_HOST,
     port,
     secure: port === 465,
     auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASSWORD },
-    // Hostinger SMTP is more reliable with a small pool + rate limit than parallel sockets.
-    pool: true,
-    maxConnections: 1,
-    maxMessages: 20,
-    rateDelta: 1000,
-    rateLimit: 1,
+    pool: false,
     connectionTimeout: 20_000,
     greetingTimeout: 15_000,
     socketTimeout: 30_000,
+    tls: { minVersion: "TLSv1.2" },
   });
 }
 
@@ -97,8 +94,23 @@ const escape = (value: unknown) =>
 
 export type MailRow = [label: string, value: unknown];
 
-const fromAddress = () => process.env.MAIL_FROM ?? `"${site.name}" <${site.email}>`;
-const notifyTo = () => process.env.NOTIFY_EMAIL ?? "sorimobiletire@gmail.com";
+/** Strip accidental wrapping quotes from Hostinger/hPanel env values. */
+function fromAddress() {
+  const raw = (process.env.MAIL_FROM ?? `${site.name} <${site.email}>`).trim();
+  return raw.replace(/^['"]+|['"]+$/g, "");
+}
+
+/** Comma/semicolon-separated list; always falls back to the public contact mailbox. */
+function notifyRecipients() {
+  const raw = (process.env.NOTIFY_EMAIL ?? site.email).trim();
+  const list = raw
+    .split(/[,;]+/)
+    .map((v) => v.trim().toLowerCase())
+    .filter(Boolean);
+  return list.length ? [...new Set(list)] : [site.email];
+}
+
+const notifyTo = () => notifyRecipients().join(", ");
 
 /** Shared branded shell used for every transactional email. Logo is embedded via cid:smt-logo. */
 function emailShell({
@@ -214,8 +226,9 @@ async function sendBrandedMail({
   title,
   bodyHtml,
   text,
+  highPriority = false,
 }: {
-  to: string;
+  to: string | string[];
   subject: string;
   replyTo?: string;
   preheader: string;
@@ -223,13 +236,21 @@ async function sendBrandedMail({
   title: string;
   bodyHtml: string;
   text: string;
+  highPriority?: boolean;
 }) {
   if (!smtpConfigured()) {
     console.warn(`[mail] SMTP not configured, skipping: ${subject}`);
     return false;
   }
 
+  const recipients = (Array.isArray(to) ? to : [to]).map((v) => v.trim()).filter(Boolean);
+  if (!recipients.length) {
+    console.warn(`[mail] no recipients, skipping: ${subject}`);
+    return false;
+  }
+
   const logo = await getLogoAttachment();
+  const smtpUser = process.env.SMTP_USER!;
   let lastError: unknown;
 
   for (let attempt = 1; attempt <= MAX_SEND_ATTEMPTS; attempt++) {
@@ -237,26 +258,39 @@ async function sendBrandedMail({
     if (!t) return false;
 
     try {
-      await t.sendMail({
+      const info = await t.sendMail({
         from: fromAddress(),
-        to,
+        to: recipients,
         replyTo,
         subject,
         html: emailShell({ preheader, eyebrow, title, bodyHtml }),
         text,
         attachments: [logo],
+        // Envelope must match the authenticated Hostinger mailbox (avoids silent relay drops).
+        envelope: { from: smtpUser, to: recipients },
+        headers: highPriority
+          ? {
+              Importance: "high",
+              Priority: "urgent",
+              "X-Priority": "1",
+              "X-MSMail-Priority": "High",
+            }
+          : undefined,
       });
+      console.info(
+        `[mail] sent ok → ${recipients.join(", ")} | id=${info.messageId ?? "?"} | accepted=${JSON.stringify(info.accepted ?? [])}`,
+      );
       return true;
     } catch (error) {
       lastError = error;
       const transient = isTransientMailError(error);
       console.error(
-        `[mail] send failed (attempt ${attempt}/${MAX_SEND_ATTEMPTS}, transient=${transient}): ${subject}`,
+        `[mail] send failed (attempt ${attempt}/${MAX_SEND_ATTEMPTS}, transient=${transient}): ${subject} → ${recipients.join(", ")}`,
         error,
       );
       resetTransporter();
       if (!transient || attempt === MAX_SEND_ATTEMPTS) break;
-      await sleep(400 * attempt);
+      await sleep(500 * attempt);
     }
   }
 
@@ -267,7 +301,7 @@ export type CustomerMailKind = "quote" | "appointment" | "contact" | "newsletter
 
 export async function notifyBusiness(subject: string, rows: MailRow[], replyTo?: string) {
   return sendBrandedMail({
-    to: notifyTo(),
+    to: notifyRecipients(),
     subject: `[${site.name}] ${subject}`,
     replyTo,
     preheader: subject,
@@ -275,6 +309,7 @@ export async function notifyBusiness(subject: string, rows: MailRow[], replyTo?:
     title: subject,
     bodyHtml: `<p style="margin:0 0 4px">A new request just arrived from the ${escape(site.name)} website.</p>${rowsToTable(rows)}`,
     text: `${subject}\n\n${rowsToText(rows)}\n\n— ${site.name}\n${site.phone.display}\n${site.email}`,
+    highPriority: true,
   });
 }
 
