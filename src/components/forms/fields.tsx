@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, type ReactNode } from "react";
+import { useEffect, useId, useRef, type ReactNode } from "react";
 import { AlertCircle, CheckCircle2, Loader2, Phone } from "lucide-react";
 import Link from "next/link";
 import {
@@ -11,6 +11,7 @@ import {
   usStates,
 } from "@/lib/form-options";
 import { site } from "@/lib/site";
+import { whatsappLink } from "@/lib/whatsapp";
 
 type Errors = Record<string, string>;
 
@@ -66,6 +67,9 @@ export function TextField({
   className,
   inputMode,
   hint,
+  min,
+  max,
+  step,
 }: {
   label: string;
   name: string;
@@ -77,6 +81,9 @@ export function TextField({
   className?: string;
   inputMode?: "numeric" | "tel" | "email" | "text";
   hint?: string;
+  min?: number | string;
+  max?: number | string;
+  step?: number | string;
 }) {
   return (
     <Field label={label} name={name} error={errors[name]} optional={optional} className={className} hint={hint}>
@@ -89,6 +96,9 @@ export function TextField({
           autoComplete={autoComplete}
           placeholder={placeholder}
           inputMode={inputMode}
+          min={min}
+          max={max}
+          step={step}
           className={`field ${errors[name] ? "border-red-400" : ""}`}
         />
       )}
@@ -339,18 +349,33 @@ export function SuccessPanel({
   title,
   text,
   onReset,
-  whatsappKind = "request",
+  whatsappMessage,
 }: {
   title: string;
   text: string;
   onReset: () => void;
-  whatsappKind?: string;
+  /** Prefilled WhatsApp body — ideally the same details as the admin email. */
+  whatsappMessage: string;
 }) {
-  const wa = `https://wa.me/${site.whatsapp.href.match(/\d+/)?.[0] ?? "13012669830"}?text=${encodeURIComponent(
-    `Hi SORI Mobile Tire — I just submitted a ${whatsappKind} on your website and I'd like to confirm details.`,
-  )}`;
+  const panelRef = useRef<HTMLDivElement>(null);
+  const wa = whatsappLink(whatsappMessage);
+
+  useEffect(() => {
+    const el = panelRef.current;
+    if (!el) return;
+    // Keep the success card in view (replacing a tall form used to leave the viewport on the footer).
+    requestAnimationFrame(() => {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }, []);
+
   return (
-    <div role="status" className="rounded-[2rem] bg-navy p-10 text-center text-white md:p-14">
+    <div
+      ref={panelRef}
+      role="status"
+      tabIndex={-1}
+      className="scroll-mt-28 rounded-[2rem] bg-navy p-10 text-center text-white outline-none md:scroll-mt-32 md:p-14"
+    >
       <CheckCircle2 className="mx-auto size-16 text-brand" aria-hidden />
       <h3 className="mt-6 text-4xl font-extrabold text-white uppercase">{title}</h3>
       <p className="mx-auto mt-3 max-w-md text-white/75">{text}</p>

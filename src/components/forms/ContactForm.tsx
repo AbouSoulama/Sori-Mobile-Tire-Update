@@ -1,10 +1,11 @@
 "use client";
 
+import { contactWhatsAppMessage } from "@/lib/form-summary";
 import { FormError, Honeypot, SubmitButton, SuccessPanel, TextAreaField, TextField } from "./fields";
 import { useFormSubmit } from "./useFormSubmit";
 
 export function ContactForm() {
-  const { status, errors, message, onSubmit, reset } = useFormSubmit("/api/contact");
+  const { status, errors, message, submitted, onSubmit, reset } = useFormSubmit("/api/contact");
 
   if (status === "success") {
     return (
@@ -12,7 +13,7 @@ export function ContactForm() {
         title="Message sent"
         text="Thanks for reaching out! We'll get back to you as soon as possible."
         onReset={reset}
-        whatsappKind="contact message"
+        whatsappMessage={contactWhatsAppMessage(submitted ?? {})}
       />
     );
   }

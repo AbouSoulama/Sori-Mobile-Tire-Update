@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import nodemailer, { type Transporter } from "nodemailer";
 import { captureError } from "./errors";
-import { customerWhatsAppFollowUp } from "./notify";
+import { customerWhatsAppFollowUp } from "./whatsapp";
 import { site } from "./site";
 
 let transporter: Transporter | null = null;

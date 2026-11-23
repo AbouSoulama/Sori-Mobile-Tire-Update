@@ -77,6 +77,11 @@ export const quoteSchema = z.object({
   services: z
     .array(z.enum(serviceOptions), { error: "Select at least one service" })
     .min(1, "Select at least one service"),
+  quantity: z.coerce
+    .number({ error: "Quantity is required" })
+    .int("Enter a whole number")
+    .min(1, "Quantity must be at least 1")
+    .max(100, "Quantity looks too high"),
   ...vehicle,
   ...tire,
   ...personal,

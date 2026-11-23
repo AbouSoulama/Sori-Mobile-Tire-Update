@@ -4,16 +4,35 @@ import { deliverFormEmails, type MailRow } from "@/lib/mail";
 import { notifyCustomerChannels } from "@/lib/notify";
 import { quoteSchema } from "@/lib/validation";
 
+let quantityColumnReady: Promise<void> | null = null;
+
+/** Add quantity column on older Hostinger DBs that were created before this field existed. */
+function ensureQuantityColumn() {
+  quantityColumnReady ??= (async () => {
+    try {
+      await getPool().execute(
+        `ALTER TABLE quote_requests ADD COLUMN quantity INT UNSIGNED NULL AFTER rim_size`,
+      );
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : String(error);
+      // Duplicate column = already migrated.
+      if (!/duplicate column|exists/i.test(msg)) throw error;
+    }
+  })();
+  return quantityColumnReady;
+}
+
 export async function POST(request: Request) {
   return handleFormPost(request, quoteSchema, {
     name: "quote",
     persist: async (d, ip) => {
+      await ensureQuantityColumn();
       await getPool().execute(
         `INSERT INTO quote_requests
-          (services, vehicle_year, vehicle_make, vehicle_model, tire_width, tire_profile, rim_size,
+          (services, vehicle_year, vehicle_make, vehicle_model, tire_width, tire_profile, rim_size, quantity,
            first_name, last_name, email, phone, address, city, state, postal_code, message,
            contact_preference, ip_address)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           JSON.stringify(d.services),
           d.vehicleYear,
@@ -22,6 +41,7 @@ export async function POST(request: Request) {
           d.tireWidth,
           d.tireProfile,
           d.rimSize,
+          d.quantity,
           d.firstName,
           d.lastName,
           d.email,
@@ -39,6 +59,7 @@ export async function POST(request: Request) {
     notify: async (d) => {
       const rows: MailRow[] = [
         ["Services", d.services],
+        ["Quantity", d.quantity],
         ["Vehicle", [d.vehicleYear, d.vehicleMake, d.vehicleModel].filter(Boolean).join(" ")],
         ["Tire size", d.tireWidth ? `${d.tireWidth}/${d.tireProfile ?? "?"} R${d.rimSize ?? "?"}` : null],
         ["Name", `${d.firstName} ${d.lastName}`],

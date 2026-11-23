@@ -26,6 +26,7 @@ CREATE TABLE IF NOT EXISTS quote_requests (
   tire_width VARCHAR(4) NULL,
   tire_profile VARCHAR(4) NULL,
   rim_size VARCHAR(4) NULL,
+  quantity INT UNSIGNED NULL,
   first_name VARCHAR(100) NOT NULL,
   last_name VARCHAR(100) NOT NULL,
   email VARCHAR(190) NOT NULL,

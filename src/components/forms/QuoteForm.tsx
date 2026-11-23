@@ -1,6 +1,7 @@
 "use client";
 
 import { serviceOptions } from "@/lib/form-options";
+import { quoteWhatsAppMessage } from "@/lib/form-summary";
 import type { VehicleCatalog } from "@/lib/vehicles";
 import {
   ConsentField,
@@ -12,13 +13,16 @@ import {
   SubmitButton,
   SuccessPanel,
   TextAreaField,
+  TextField,
   TireSizeFields,
 } from "./fields";
 import { VehicleFields } from "./VehicleFields";
 import { useFormSubmit } from "./useFormSubmit";
 
 export function QuoteForm({ catalog }: { catalog: VehicleCatalog }) {
-  const { status, errors, message, onSubmit, reset } = useFormSubmit("/api/quote", { arrayFields: ["services"] });
+  const { status, errors, message, submitted, onSubmit, reset } = useFormSubmit("/api/quote", {
+    arrayFields: ["services"],
+  });
 
   if (status === "success") {
     return (
@@ -26,7 +30,7 @@ export function QuoteForm({ catalog }: { catalog: VehicleCatalog }) {
         title="Quote request sent"
         text="Thank you! We received your request and will get back to you shortly with a custom quote."
         onReset={reset}
-        whatsappKind="quote request"
+        whatsappMessage={quoteWhatsAppMessage(submitted ?? {})}
       />
     );
   }
@@ -48,6 +52,20 @@ export function QuoteForm({ catalog }: { catalog: VehicleCatalog }) {
           ))}
         </div>
         {errors.services && <p className="field-error mt-2">{errors.services}</p>}
+        <div className="mt-6 max-w-xs">
+          <TextField
+            label="Quantity"
+            name="quantity"
+            type="number"
+            inputMode="numeric"
+            errors={errors}
+            placeholder="e.g. 4"
+            hint="How many tires / units do you need?"
+            min={1}
+            max={100}
+            step={1}
+          />
+        </div>
       </FormSection>
 
       <FormSection step={2} title="Vehicle Information" description="Please enter your vehicle information">

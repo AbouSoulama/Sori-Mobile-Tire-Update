@@ -8,6 +8,7 @@ export function useFormSubmit(endpoint: string, { arrayFields = [] as string[] }
   const [status, setStatus] = useState<FormStatus>("idle");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [message, setMessage] = useState("");
+  const [submitted, setSubmitted] = useState<Record<string, unknown> | null>(null);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -30,6 +31,7 @@ export function useFormSubmit(endpoint: string, { arrayFields = [] as string[] }
       });
       const json = await res.json().catch(() => ({}));
       if (res.ok && json.ok) {
+        setSubmitted(payload);
         setStatus("success");
         form.reset();
         return;
@@ -46,5 +48,15 @@ export function useFormSubmit(endpoint: string, { arrayFields = [] as string[] }
     }
   }
 
-  return { status, errors, message, onSubmit, reset: () => setStatus("idle") };
+  return {
+    status,
+    errors,
+    message,
+    submitted,
+    onSubmit,
+    reset: () => {
+      setSubmitted(null);
+      setStatus("idle");
+    },
+  };
 }

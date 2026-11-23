@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { Download, Loader2, Lock, LogOut, RefreshCw } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Download, Loader2, Lock, LogOut, RefreshCw, X } from "lucide-react";
 
 type Leads = {
   quotes: Record<string, unknown>[];
@@ -9,6 +9,177 @@ type Leads = {
   messages: Record<string, unknown>[];
   subscribers: Record<string, unknown>[];
 };
+
+type Tab = "quotes" | "appointments" | "messages" | "newsletter";
+
+const HIDDEN_DETAIL_KEYS = new Set(["id", "ip_address"]);
+
+function formatValue(key: string, value: unknown): string {
+  if (value === null || value === undefined || value === "") return "—";
+  if (Array.isArray(value)) return value.filter(Boolean).join(", ") || "—";
+  if (typeof value === "object") {
+    try {
+      return JSON.stringify(value);
+    } catch {
+      return String(value);
+    }
+  }
+  if (key === "created_at" || key.endsWith("_date")) {
+    const d = new Date(String(value));
+    if (!Number.isNaN(d.getTime()) && String(value).includes("-")) {
+      return key === "created_at" ? d.toLocaleString() : String(value);
+    }
+  }
+  if (key === "is_read" || key === "is_active") return value ? "Yes" : "No";
+  return String(value);
+}
+
+function labelFor(key: string) {
+  return key
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+function detailRows(tab: Tab, row: Record<string, unknown>): Array<[string, string]> {
+  const preferred =
+    tab === "quotes"
+      ? [
+          "first_name",
+          "last_name",
+          "email",
+          "phone",
+          "services",
+          "quantity",
+          "vehicle_year",
+          "vehicle_make",
+          "vehicle_model",
+          "tire_width",
+          "tire_profile",
+          "rim_size",
+          "address",
+          "city",
+          "state",
+          "postal_code",
+          "contact_preference",
+          "message",
+          "status",
+          "created_at",
+        ]
+      : tab === "appointments"
+        ? [
+            "first_name",
+            "last_name",
+            "email",
+            "phone",
+            "service",
+            "appointment_date",
+            "appointment_time",
+            "wait_preference",
+            "vehicle_year",
+            "vehicle_make",
+            "vehicle_model",
+            "tire_width",
+            "tire_profile",
+            "rim_size",
+            "address",
+            "city",
+            "state",
+            "postal_code",
+            "contact_preference",
+            "message",
+            "status",
+            "created_at",
+          ]
+        : tab === "messages"
+          ? ["name", "email", "phone", "subject", "message", "is_read", "created_at"]
+          : ["email", "is_active", "created_at"];
+
+  const rows: Array<[string, string]> = [];
+  const seen = new Set<string>();
+  for (const key of preferred) {
+    if (!(key in row) || HIDDEN_DETAIL_KEYS.has(key)) continue;
+    rows.push([labelFor(key), formatValue(key, row[key])]);
+    seen.add(key);
+  }
+  for (const key of Object.keys(row)) {
+    if (seen.has(key) || HIDDEN_DETAIL_KEYS.has(key)) continue;
+    rows.push([labelFor(key), formatValue(key, row[key])]);
+  }
+  return rows;
+}
+
+function LeadDetailPanel({
+  tab,
+  row,
+  onClose,
+}: {
+  tab: Tab;
+  row: Record<string, unknown>;
+  onClose: () => void;
+}) {
+  const title =
+    tab === "newsletter"
+      ? String(row.email ?? "Subscriber")
+      : tab === "messages"
+        ? String(row.name ?? "Message")
+        : `${row.first_name ?? ""} ${row.last_name ?? ""}`.trim() || "Lead";
+
+  const phone = row.phone ? String(row.phone) : "";
+  const email = row.email ? String(row.email) : "";
+  const fields = useMemo(() => detailRows(tab, row), [tab, row]);
+
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") onClose();
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-navy/50 p-4 sm:items-center" role="dialog" aria-modal="true" aria-labelledby="lead-detail-title">
+      <button type="button" className="absolute inset-0 cursor-default" aria-label="Close details" onClick={onClose} />
+      <div className="relative z-10 max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-[1.75rem] bg-white shadow-2xl">
+        <div className="sticky top-0 flex items-start justify-between gap-4 border-b border-navy/10 bg-white px-6 py-5">
+          <div>
+            <p className="text-xs font-bold tracking-widest text-brand uppercase">{tab}</p>
+            <h2 id="lead-detail-title" className="mt-1 text-2xl font-extrabold text-navy uppercase">
+              {title}
+            </h2>
+            <div className="mt-2 flex flex-wrap gap-3 text-sm">
+              {email && (
+                <a href={`mailto:${email}`} className="font-semibold text-brand-700 hover:underline">
+                  {email}
+                </a>
+              )}
+              {phone && (
+                <a href={`tel:${phone}`} className="font-semibold text-brand-700 hover:underline">
+                  {phone}
+                </a>
+              )}
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-full border border-navy/10 p-2 text-navy hover:bg-sand"
+            aria-label="Close"
+          >
+            <X className="size-5" />
+          </button>
+        </div>
+        <dl className="divide-y divide-navy/10 px-6 py-2">
+          {fields.map(([label, value]) => (
+            <div key={label} className="grid gap-1 py-3 sm:grid-cols-[11rem_1fr] sm:gap-4">
+              <dt className="text-xs font-bold tracking-wide text-slate-muted uppercase">{label}</dt>
+              <dd className="whitespace-pre-wrap text-sm font-medium text-navy">{value}</dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+    </div>
+  );
+}
 
 export function AdminApp({
   configured,
@@ -25,7 +196,8 @@ export function AdminApp({
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [leads, setLeads] = useState<Leads | null>(null);
-  const [tab, setTab] = useState<"quotes" | "appointments" | "messages" | "newsletter">("quotes");
+  const [tab, setTab] = useState<Tab>("quotes");
+  const [selected, setSelected] = useState<Record<string, unknown> | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -52,6 +224,10 @@ export function AdminApp({
   useEffect(() => {
     if (authed) void load();
   }, [authed, load]);
+
+  useEffect(() => {
+    setSelected(null);
+  }, [tab]);
 
   async function login(e: React.FormEvent) {
     e.preventDefault();
@@ -82,6 +258,7 @@ export function AdminApp({
     await fetch("/api/admin/logout", { method: "POST" });
     setAuthed(false);
     setLeads(null);
+    setSelected(null);
   }
 
   async function setStatus(type: string, id: number, status?: string, is_read?: boolean) {
@@ -162,7 +339,7 @@ export function AdminApp({
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-extrabold uppercase">Leads desk</h1>
-          <p className="text-slate-muted">Mark items processed and export CSV anytime.</p>
+          <p className="text-slate-muted">Click a client name to open the full submission.</p>
         </div>
         <div className="flex flex-wrap gap-2">
           <button type="button" onClick={() => void load()} className="btn-outline py-2">
@@ -219,27 +396,37 @@ export function AdminApp({
           <tbody>
             {(rows ?? []).map((row) => {
               const id = Number(row.id);
-              const who =
+              const whoName =
                 tab === "newsletter"
                   ? String(row.email)
                   : tab === "messages"
-                    ? `${row.name} · ${row.email}`
-                    : `${row.first_name} ${row.last_name} · ${row.email}`;
+                    ? String(row.name)
+                    : `${row.first_name} ${row.last_name}`;
+              const whoEmail = tab === "newsletter" ? "" : String(row.email ?? "");
               const details =
                 tab === "quotes"
-                  ? `${Array.isArray(row.services) ? (row.services as string[]).join(", ") : row.services} — ${row.city}, ${row.state}`
+                  ? `${Array.isArray(row.services) ? (row.services as string[]).join(", ") : row.services}${row.quantity ? ` · qty ${row.quantity}` : ""} — ${row.city}, ${row.state}`
                   : tab === "appointments"
                     ? `${row.service} · ${row.appointment_date} ${row.appointment_time}`
                     : tab === "messages"
                       ? `${row.subject || "No subject"} — ${String(row.message).slice(0, 80)}`
-                      : row.is_active ? "Active" : "Inactive";
+                      : row.is_active
+                        ? "Active"
+                        : "Inactive";
               const status =
                 tab === "messages" ? (row.is_read ? "read" : "new") : String(row.status ?? "—");
               return (
                 <tr key={`${tab}-${id}`} className="border-t border-navy/10 align-top">
                   <td className="px-4 py-3 font-mono text-xs">{id}</td>
                   <td className="px-4 py-3">
-                    <div className="font-semibold text-navy">{who}</div>
+                    <button
+                      type="button"
+                      onClick={() => setSelected(row)}
+                      className="text-left font-semibold text-navy underline-offset-2 hover:text-brand-700 hover:underline"
+                    >
+                      {whoName}
+                    </button>
+                    {whoEmail ? <div className="text-xs text-slate-muted">{whoEmail}</div> : null}
                     {"phone" in row && row.phone ? (
                       <a href={`tel:${row.phone}`} className="text-brand-700">
                         {String(row.phone)}
@@ -302,6 +489,8 @@ export function AdminApp({
           </tbody>
         </table>
       </div>
+
+      {selected && <LeadDetailPanel tab={tab} row={selected} onClose={() => setSelected(null)} />}
     </section>
   );
 }

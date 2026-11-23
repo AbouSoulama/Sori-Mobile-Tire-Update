@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { serviceOptions, timeSlotOptions, waitPreferenceOptions } from "@/lib/form-options";
+import { appointmentWhatsAppMessage } from "@/lib/form-summary";
 import type { VehicleCatalog } from "@/lib/vehicles";
 import {
   ConsentField,
@@ -26,7 +27,7 @@ const today = () => {
 };
 
 export function AppointmentForm({ catalog }: { catalog: VehicleCatalog }) {
-  const { status, errors, message, onSubmit, reset } = useFormSubmit("/api/appointment");
+  const { status, errors, message, submitted, onSubmit, reset } = useFormSubmit("/api/appointment");
   const [date, setDate] = useState("");
   const [available, setAvailable] = useState<string[]>([...timeSlotOptions]);
   const [booked, setBooked] = useState<string[]>([]);
@@ -67,7 +68,7 @@ export function AppointmentForm({ catalog }: { catalog: VehicleCatalog }) {
         title="Appointment requested"
         text="Thank you! We'll contact you shortly to confirm your appointment. We come to you - anywhere, anytime."
         onReset={reset}
-        whatsappKind="appointment request"
+        whatsappMessage={appointmentWhatsAppMessage(submitted ?? {})}
       />
     );
   }
