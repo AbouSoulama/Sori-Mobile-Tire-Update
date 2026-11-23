@@ -147,7 +147,7 @@ export default function HomePage() {
               spot.
             </p>
             <Link href="/puncture-repair" className="mt-6 inline-flex items-center gap-2 font-bold text-brand">
-              Puncture repair <ArrowRight className="size-4 transition group-hover:translate-x-2" />
+              Tire repair <ArrowRight className="size-4 transition group-hover:translate-x-2" />
             </Link>
           </article>
           <div className="grid gap-6">

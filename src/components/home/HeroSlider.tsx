@@ -33,7 +33,7 @@ const slides: Slide[] = [
     eyebrow: "Flat tire repair",
     title: ["Flat tire?", "Fixed on the spot."],
     text: "Plug, patch or replace right where you are: highway shoulder, driveway or office parking lot.",
-    cta: { label: "Puncture repair", href: "/puncture-repair" },
+    cta: { label: "Tire repair", href: "/puncture-repair" },
   },
   {
     image: "/images/tire-inspection.webp",

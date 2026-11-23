@@ -3,7 +3,7 @@
   "currency": "USD",
   "items": [
     {
-      "name": "Flat / puncture repair (on-site)",
+      "name": "Flat / tire repair (on-site)",
       "from": 45,
       "unit": "per tire",
       "note": "Plug or patch when repairable"

@@ -8,7 +8,7 @@ import { getFaq, getPricing } from "@/lib/content";
 export const metadata: Metadata = {
   title: "FAQ",
   description:
-    "FAQ for SORI Mobile Tire: arrival times, service area, payments, puncture repair, tire installs and 24/7 emergency help in Waldorf, MD.",
+    "FAQ for SORI Mobile Tire: arrival times, service area, payments, tire repair, tire installs and 24/7 emergency help in Waldorf, MD.",
   alternates: { canonical: "/faq" },
 };
 

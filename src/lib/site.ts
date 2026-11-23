@@ -16,16 +16,16 @@ export const site = {
   },
   email: "contact@sori-mobile-tire.com",
   address: {
-    street: "3812 Light Arms Pl",
+    street: "28 Industrial Park Dr, Suite O",
     city: "Waldorf",
     region: "MD",
     postalCode: "20602",
     country: "US",
-    full: "3812 Light Arms Pl, Waldorf, MD 20602, United States",
+    full: "28 Industrial Park Dr, Suite O, Waldorf, Maryland 20602",
   },
   geo: { lat: 38.6246, lng: -76.9391 },
   mapEmbed:
-    "https://maps.google.com/maps?q=3812%20Light%20Arms%20Pl%2C%20Waldorf%2C%20MD%2020602&z=14&output=embed",
+    "https://maps.google.com/maps?q=28%20Industrial%20Park%20Dr%2C%20Suite%20O%2C%20Waldorf%2C%20MD%2020602&z=14&output=embed",
   hours: [
     { days: "Monday - Friday", time: "8:00 AM - 7:00 PM" },
     { days: "Saturday", time: "9:00 AM - 5:00 PM" },
@@ -58,7 +58,7 @@ export const utilityLinks = [
 /** Entries of the "Services" dropdown (same pages as the former WordPress submenu). */
 export const servicesMenu = [
   {
-    label: "Puncture Repair",
+    label: "Tire Repair",
     description: "Plug, patch or full repair, right where you are.",
     href: "/puncture-repair",
   },

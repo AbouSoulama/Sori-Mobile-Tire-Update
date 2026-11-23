@@ -8,9 +8,9 @@ import { Testimonials } from "@/components/sections/Testimonials";
 import { CtaBand } from "@/components/sections/CtaBand";
 
 export const metadata: Metadata = {
-  title: "Puncture & Flat Tire Repair",
+  title: "Tire Repair",
   description:
-    "Fast, on-site puncture repair using high-quality techniques and materials. Nails, screws, sharp objects: SORI Mobile Tire fixes it where you are.",
+    "Fast, on-site tire repair using high-quality techniques and materials. Nails, screws, sharp objects: SORI Mobile Tire fixes it where you are.",
   alternates: { canonical: "/puncture-repair" },
 };
 
@@ -56,7 +56,7 @@ const tools = [
   "Wheel wrench",
   "Tire levers",
   "Air compressor",
-  "Puncture repair kit",
+  "Tire repair kit",
   "Depth gauge",
   "Work light",
   "Protective gloves",
@@ -69,10 +69,10 @@ export default function PunctureRepairPage() {
     <>
       <PageHero
         eyebrow="Flat tire repair"
-        title="Puncture Repair"
-        intro="We repair punctures quickly and efficiently, using high-quality techniques and materials."
+        title="Tire Repair"
+        intro="We repair tires quickly and efficiently, using high-quality techniques and materials."
         image="/images/puncture-repair.webp"
-        crumbs={[{ label: "Services", href: "/services" }, { label: "Puncture Repair" }]}
+        crumbs={[{ label: "Services", href: "/services" }, { label: "Tire Repair" }]}
       />
 
       <section className="container-x py-24">
@@ -140,7 +140,7 @@ export default function PunctureRepairPage() {
       <BrandStrip />
       <CtaBand
         title="Appointment"
-        text="Contact us today to make an appointment and benefit from our reliable and efficient puncture repair service."
+        text="Contact us today to make an appointment and benefit from our reliable and efficient tire repair service."
       />
     </>
   );
